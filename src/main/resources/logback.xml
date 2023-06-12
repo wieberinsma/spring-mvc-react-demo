@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+    <property resource="application.properties"/>
+
+    <property name="fileBasepath" value="${logging.file.basepath}"/>
+    <property name="requestLevel" value="${logging.web.request.level}"/>
+    <property name="sqlLevel" value="${logging.hibernate.sql.level}"/>
+    <property name="securityLevel" value="${logging.security.level}"/>
+
+    <property name="securityFileSize" value="${logging.security.file.size}"/>
+    <property name="securityFileHistory" value="${logging.security.file.history}"/>
+    <property name="securityFileSizeCap" value="${logging.security.file.size.cap}"/>
+
+    <property name="requestFileSize" value="${logging.request.file.size}"/>
+    <property name="requestFileHistory" value="${logging.request.file.history}"/>
+    <property name="requestFileSizeCap" value="${logging.request.file.size.cap}"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                %d{ISO8601} %highlight(%-5level) [%magenta(%t)] %yellow(%C{1.}): %msg%n%throwable
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SECURITY-LOGS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${fileBasepath}/security.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${fileBasepath}/archived/security.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${securityFileSize}</maxFileSize>
+            <maxHistory>${securityFileHistory}</maxHistory>
+            <totalSizeCap>${securityFileSizeCap}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="REQUEST-LOGS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${fileBasepath}/request.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${fileBasepath}/archived/request.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>${requestFileSize}</maxFileSize>
+            <maxHistory>${requestFileHistory}</maxHistory>
+            <totalSizeCap>${requestFileSizeCap}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d %p %c{1.} [%t] %m%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- SECURITY LOGS -->
+    <logger name="nl.han.rwd.srd.api.security" level="${securityLevel}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SECURITY-LOGS"/>
+    </logger>
+
+    <logger name="nl.han.rwd.srd.domain.user.impl.service.SecurityServiceImpl" level="${securityLevel}"
+            additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SECURITY-LOGS"/>
+    </logger>
+
+    <logger name="org.springframework.security" level="${securityLevel}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="SECURITY-LOGS"/>
+    </logger>
+    <!-- SECURITY LOGS -->
+
+    <!-- REQUEST LOGS -->
+    <logger name="org.springframework.web" level="${requestLevel}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="REQUEST-LOGS"/>
+    </logger>
+    <!-- REQUEST LOGS -->
+
+    <logger name="org.hibernate" level="${sqlLevel}" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
